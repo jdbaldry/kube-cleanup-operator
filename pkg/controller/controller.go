@@ -57,13 +57,15 @@ type Kleaner struct {
 
 // NewKleaner creates a new NewKleaner
 func NewKleaner(ctx context.Context, kclient *kubernetes.Clientset, namespace string, dryRun bool, deleteSuccessfulAfter,
-	deleteFailedAfter, deletePendingAfter, deleteOrphanedAfter, deleteEvictedAfter time.Duration, stopCh <-chan struct{}) *Kleaner {
+	deleteFailedAfter, deletePendingAfter, deleteOrphanedAfter, deleteEvictedAfter time.Duration, labelSelector string, stopCh <-chan struct{}) *Kleaner {
 	jobInformer := cache.NewSharedIndexInformer(
 		&cache.ListWatch{
 			ListFunc: func(options metav1.ListOptions) (runtime.Object, error) {
+				options.LabelSelector = labelSelector
 				return kclient.BatchV1().Jobs(namespace).List(ctx, options)
 			},
 			WatchFunc: func(options metav1.ListOptions) (watch.Interface, error) {
+				options.LabelSelector = labelSelector
 				return kclient.BatchV1().Jobs(namespace).Watch(ctx, options)
 			},
 		},
@@ -75,9 +77,11 @@ func NewKleaner(ctx context.Context, kclient *kubernetes.Clientset, namespace st
 	podInformer := cache.NewSharedIndexInformer(
 		&cache.ListWatch{
 			ListFunc: func(options metav1.ListOptions) (runtime.Object, error) {
+				options.LabelSelector = labelSelector
 				return kclient.CoreV1().Pods(namespace).List(ctx, options)
 			},
 			WatchFunc: func(options metav1.ListOptions) (watch.Interface, error) {
+				options.LabelSelector = labelSelector
 				return kclient.CoreV1().Pods(namespace).Watch(ctx, options)
 			},
 		},

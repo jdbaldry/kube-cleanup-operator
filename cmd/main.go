@@ -45,6 +45,7 @@ func main() {
 	deleteOrphanedAfter := flag.Duration("delete-orphaned-pods-after", 1*time.Hour, "Delete orphaned pods. Pods without an owner in non-running state (golang duration format, e.g 5m), 0 - never delete")
 	deleteEvictedAfter := flag.Duration("delete-evicted-pods-after", 15*time.Minute, "Delete pods in evicted state (golang duration format, e.g 5m), 0 - never delete")
 	deletePendingAfter := flag.Duration("delete-pending-pods-after", 0, "Delete pods in pending state after X duration (golang duration format, e.g 5m), 0 - never delete")
+	labelSelector := flag.String("label-selector", "", "Limit scope to a single label selector. For example, 'foo=bar' will only delete pods and jobs with a metadata.label key 'foo', with value 'bar'. An empty string '' (default) will match all pods and jobs")
 
 	legacyKeepSuccessHours := flag.Int64("keep-successful", 0, "Number of hours to keep successful jobs, -1 - forever, 0 - never (default), >0 number of hours")
 	legacyKeepFailedHours := flag.Int64("keep-failures", -1, "Number of hours to keep faild jobs, -1 - forever (default) 0 - never, >0 number of hours")
@@ -65,6 +66,7 @@ func main() {
 	optsInfo.WriteString(fmt.Sprintf("\tdelete-pending-after: %s\n", *deletePendingAfter))
 	optsInfo.WriteString(fmt.Sprintf("\tdelete-orphaned-after: %s\n", *deleteOrphanedAfter))
 	optsInfo.WriteString(fmt.Sprintf("\tdelete-evicted-after: %s\n", *deleteEvictedAfter))
+	optsInfo.WriteString(fmt.Sprintf("\tlabel-selector: %s\n", *labelSelector))
 
 	optsInfo.WriteString(fmt.Sprintf("\n\tlegacy-mode: %v\n", *legacyMode))
 	optsInfo.WriteString(fmt.Sprintf("\tkeep-successful: %d\n", *legacyKeepSuccessHours))
@@ -121,6 +123,7 @@ func main() {
 				*deletePendingAfter,
 				*deleteOrphanedAfter,
 				*deleteEvictedAfter,
+				*labelSelector,
 				stopCh,
 			).Run()
 		}
