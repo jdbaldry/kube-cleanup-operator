@@ -159,10 +159,6 @@ func (c *Kleaner) Process(obj interface{}) {
 			return
 		}
 		job := t
-		// skip the job if it has any active pods
-		if job.Status.Active > 0 {
-			return
-		}
 
 		finishTime := extractJobFinishTime(job)
 
